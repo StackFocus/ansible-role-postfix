@@ -10,11 +10,20 @@
 - name: START | Include vars specific to each OS family
   include_vars: "vars/{{ ansible_os_family }}.yml"
 
-- include: dovecot.yml
-- include: postfix.yml
-- include: sql.yml
-- include: postgrey.yml
-- include_tasks: add_example_users.yml
+- include_tasks:
+  file: "dovecot.yml"
+
+- include_tasks:
+  file: "postfix.yml"
+
+- include_tasks:
+  file: "sql.yml"
+
+- include_tasks:
+  file: "postgrey.yml"
+
+- include_tasks:
+  file: "add_example_users.yml"
   when:
     - dovecot_add_example_users is defined
     - dovecot_add_example_users|bool == true

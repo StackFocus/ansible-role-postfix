@@ -1,30 +1,30 @@
 ---
 - name: DOVECOT | install packages
-  package:
+  ansible.builtin.package:
     name: "{{ pkg_dovecot }}"
     state: present
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | ensure Dovecot is started and runs at startup
-  service:
+  ansible.builtin.service:
     name: dovecot
     state: started
     enabled: yes
 
 - name: DOVECOT | create vmail group
-  group:
+  ansible.builtin.group:
     name: vmail
     gid: 5000
 
 - name: DOVECOT | create vmail user
-  user:
+  ansible.builtin.user:
     name: vmail
     group: vmail
     uid: 5000
     home: /var/mail
 
 - name: DOVECOT | set secure permissions and ownership on /etc/dovecot
-  file:
+  ansible.builtin.file:
     path: /etc/dovecot
     state: directory
     owner: vmail
@@ -32,80 +32,80 @@
     mode: o-rwx
 
 - name: DOVECOT | create /var/mail/vhosts
-  file:
+  ansible.builtin.file:
     path: /var/mail/vhosts
     state: directory
     owner: vmail
     group: vmail
 
 - name: DOVECOT | configure (dovecot.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/dovecot.conf.j2
     dest: /etc/dovecot/dovecot.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (10-mail.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/10-mail.conf.j2
     dest: /etc/dovecot/conf.d/10-mail.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (15-mailboxes.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/15-mailboxes.conf.j2
     dest: /etc/dovecot/conf.d/15-mailboxes.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (10-auth.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/10-auth.conf.j2
     dest: /etc/dovecot/conf.d/10-auth.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (dovecot-sql.conf.ext)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/dovecot-sql.conf.ext.j2
     dest: /etc/dovecot/dovecot-sql.conf.ext
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (10-master.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/10-master.conf.j2
     dest: /etc/dovecot/conf.d/10-master.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (10-ssl.conf)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/10-ssl.conf.j2
     dest: /etc/dovecot/conf.d/10-ssl.conf
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot
 
 - name: DOVECOT | configure (auth-sql.conf.ext)
-  template:
+  ansible.builtin.template:
     src: etc/dovecot/conf.d/auth-sql.conf.ext.j2
     dest: /etc/dovecot/conf.d/auth-sql.conf.ext
     owner: vmail
     group: dovecot
     mode: 0440
-  notify: restart dovecot
+  notify: Restart dovecot

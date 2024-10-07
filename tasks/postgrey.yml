@@ -1,12 +1,12 @@
 ---
 - name: POSTGREY | install packages
-  package:
+  ansible.builtin.package:
     name: postgrey
     state: present
-  notify: restart postfix
+  notify: Restart postfix
 
 - name: POSTGREY | fix (/etc/default/postgrey)
-  copy:
+  ansible.builtin.copy:
     src: postgrey-default
     dest: /etc/default/postgrey
-  notify: restart postgrey
+  notify: Restart postgrey
