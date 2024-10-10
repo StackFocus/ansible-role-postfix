@@ -1,7 +1,7 @@
 # ansible-role-postfix-dovecot
 An Ansible role that automates the installation and configuration of Postfix and Dovecot with MySQL authentication on Ubuntu. The MySQL schema is derived from the following
 [Digital Ocean tutorial](https://www.digitalocean.com/community/tutorials/how-to-configure-a-mail-server-using-postfix-dovecot-mysql-and-spamassassin).
-You can view the MySQL schema used in [schema.sql](schema.sql).
+You can view the MySQL schema used in [schema.sql](files/schema.sql).
 
 ## Role Variables
 
@@ -93,4 +93,66 @@ _site.yml_
 ```
 $ ansible-galaxy install -r requirements.yml
 $ ansible-playbook -i inventory site.yml --ask-become-pass
+```
+## Extended Example playbook for fresh server
+
+In this example we use some [geerlingguy](https://github.com/geerlingguy)'s roles to handle database and certbot's certificates.
+
+_requirements.yml_
+```yaml
+roles:
+  - name: stackfocus.postfix-dovecot
+  - name: geerlingguy.mysql
+  - name: geerlingguy.certbot
+```
+
+Playbook prepare for you:
+
+* database and its users
+* Let's Encrypt certificate
+* mail transport service postfix
+* mailbox service dovecot
+
+```yaml
+---
+- name: Setup mail
+  hosts: mailserver.tld
+  become: true
+  vars:
+    mail_domain: mycooldomain.com
+    mail_database: maildb
+    mail_db_pass: 'ultrasafepassword'
+  roles:
+    - role: geerlingguy.mysql
+      mysql_databases:
+        - name: '{{ mail_database }}'
+          encoding: utf8mb4
+          collation: utf8mb4_czech_ci
+      mysql_users:
+        - name: '{{ mail_database }}'
+          host: "localhost"
+          password: '{{ mail_db_pass }}'
+          priv: "{{ mail_database }}.*:ALL"
+    - role: geerlingguy.certbot
+      certbot_certs:
+        - domains:
+            - '{{ mail_domain }}'
+            - 'mail.{{ mail_domain }}'
+    - role: stackfocus.postfix-dovecot
+      postfix_dovecot_mysql_db_name: '{{ mail_database }}'
+      postfix_dovecot_mysql_user: '{{ mail_database }}'
+      postfix_dovecot_mysql_password: '{{ mail_db_pass }}'
+      postfix_default_domain: '{{ mail_domain }}'
+      dovecot_protocols:
+        - imap
+        - pop3
+        - lmtp
+      dovecot_mail_privileged_group: vmail
+      dovecot_ssl_cert: /etc/letsencrypt/live/{{ mail_domain }}/fullchain.pem
+      dovecot_ssl_key: /etc/letsencrypt/live/{{ mail_domain }}/privkey.pem
+      postfix_ssl_cert: /etc/letsencrypt/live/{{ mail_domain }}/fullchain.pem
+      postfix_ssl_key: /etc/letsencrypt/live/{{ mail_domain }}/privkey.pem
+      postfix_smtp_tls_security_level: 'dane'
+      postfix_mydestination: '{{mail_domain}}'
+      postfix_myhostname: 'mail.{{mail_domain}}'
 ```
