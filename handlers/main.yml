@@ -1,15 +1,15 @@
 ---
-- name: restart dovecot
+- name: Restart dovecot
   service:
     name: dovecot
     state: restarted
 
-- name: restart postfix
+- name: Restart postfix
   service:
     name: postfix
     state: restarted
 
-- name: restart postgrey
+- name: Restart postgrey
   service:
     name: postgrey
     state: restarted

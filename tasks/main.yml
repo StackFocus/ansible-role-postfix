@@ -1,20 +1,33 @@
 ---
 # This is separate so that Ansible marks this step as changed instead of the
 # next one when the packages are present
-- name: START | Update apt cache (Debian/Ubuntu)
-  apt:
-    update_cache: yes
+- name: 'START | Update apt cache (Debian/Ubuntu)'
+  ansible.builtin.apt:
+    update_cache: true
   when:
     - ansible_os_family == 'Debian'
 
-- name: START | Include vars specific to each OS family
-  include_vars: "vars/{{ ansible_os_family }}.yml"
+- name: 'START | Include vars specific to each OS family'
+  ansible.builtin.include_vars: "vars/{{ ansible_os_family }}.yml"
 
-- include: dovecot.yml
-- include: postfix.yml
-- include: sql.yml
-- include: postgrey.yml
-- include_tasks: add_example_users.yml
+- name: 'Include Dovecot tasks'
+  ansible.builtin.include_tasks:
+    file: "dovecot.yml"
+
+- name: 'Include Postfix tasks'
+  ansible.builtin.include_tasks:
+    file: "postfix.yml"
+
+- name: 'Include SQL tasks'
+  ansible.builtin.include_tasks:
+    file: "sql.yml"
+
+- name: 'Include Postgrey tasks'
+  ansible.builtin.include_tasks:
+    file: "postgrey.yml"
+
+- name: 'Include example users tasks'
+  ansible.builtin.include_tasks:
+    file: "add_example_users.yml"
   when:
-    - dovecot_add_example_users is defined
-    - dovecot_add_example_users|bool == true
+    - dovecot_add_example_users is defined and dovecot_add_example_users|bool
